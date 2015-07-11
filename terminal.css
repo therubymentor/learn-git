@@ -234,7 +234,7 @@ iframe#fsn {
 }
 .prompt {
   white-space: nowrap;
-  color: #ffcc00; /*green;*/
+  color: #24cc4c; /*green;*/
   margin-right: 7px;
   display: -webkit-box;
   -webkit-box-pack: center;
@@ -255,7 +255,7 @@ iframe#fsn {
   color: inherit;
 }
 .folder {
-  color: #ffcc00;
+  color: #24cc4c;
 }
 .ls-files {
   /*height: 45px;*/
@@ -283,7 +283,7 @@ button {
   cursor: pointer;
 }
 button:not([disabled]):hover {
-  border-color: #ffcc00;
+  border-color: #24cc4c;
 }
 button:not([disabled]):active {
   background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#E3E3E3), to(#F9F9F9));
@@ -339,7 +339,7 @@ button[disabled] {
   margin-top: 0;
   margin-bottom: 25px;
   border-bottom: 1px solid #fff;
-  color: #ffcc00;
+  color: #24cc4c;
 }
 .help p strong {
   width: 60px;
@@ -366,18 +366,3 @@ button[disabled] {
   columns: 2;
 }
 
-
-/* Themes */
-.cream {
-  color: black;
-  background: #fffff3;
-}
-.cream .interlace {
-  opacity: 0.1;
-}
-.cream .prompt {
-  color: purple;
-}
-.cream .cmdline {
-  color: black;
-}
