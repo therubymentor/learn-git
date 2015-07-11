@@ -1,0 +1,13 @@
+{
+  "step": {
+    "instructions": [
+      "Welcome to Git!",
+      "Today is the first day of the rest of your development life. Everything up till now was rife for screwing up in an unrecoverable way.",
+      "From here forward you will never have to worry about catastrophic fuck-ups again. I would know, I am a master of fucking up.",
+      "To start, change directory to the working folder like so:",
+      "`cd ~/dev/proj_1`"
+    ],
+    "expected": "cd ~/dev/proj_1",
+    "next": 2
+  }
+}

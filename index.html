@@ -14,12 +14,12 @@
 <div id="container"></div>
 <!--<div class="crt bottom"></div>-->
 
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="terminal.js"></script>
 <script>
-(function() {
+$(document).ready(function() {
   var term = new Terminal('container');
-  term.initFS(false, 1024 * 1024);
-})();
+});
 </script>
 </body>
 </html>
