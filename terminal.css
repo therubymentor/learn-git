@@ -61,7 +61,7 @@ html, body {
   height: 100%;
 }
 body {
-  font-family: Inconsolata, monospace;
+  font: 1.1em Inconsolata, monospace normal;
   color: white;
   background: black;
   -webkit-background-size: 110% 100%;

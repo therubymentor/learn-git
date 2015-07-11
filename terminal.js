@@ -3,31 +3,27 @@ util.toArray = function(list) {
   return Array.prototype.slice.call(list || [], 0);
 };
 
-// Cross-browser impl to get document's height.
+// Cross-browser document height
 util.getDocHeight = function() {
   var d = document;
   return Math.max(
       Math.max(d.body.scrollHeight, d.documentElement.scrollHeight),
       Math.max(d.body.offsetHeight, d.documentElement.offsetHeight),
       Math.max(d.body.clientHeight, d.documentElement.clientHeight)
-  );
+      );
 };
 
 
 var Terminal = Terminal || function(containerId) {
   window.URL = window.URL || window.webkitURL;
   window.requestFileSystem = window.requestFileSystem ||
-                             window.webkitRequestFileSystem;
+    window.webkitRequestFileSystem;
 
   const VERSION_ = '1.0.0';
   const CMDS_ = [
-    'clear', 'help', 'learn'
+    'clear', 'help', 'restart'
   ];
-  const LEARN_ = [
-    'git'
-  ];
-  
-  var mode_ = null;
+
   var fs_ = null;
   var cwd_ = null;
   var history_ = [];
@@ -36,44 +32,18 @@ var Terminal = Terminal || function(containerId) {
 
   var timer_ = null;
   var fsn_ = null;
-
-  // Fire worker to return recursive snapshot of current FS tree.
-  var worker_ = new Worker('worker.js');
-  worker_.onmessage = function(e) {
-    var data = e.data;
-    if (data.entries) {
-      fsn_.contentWindow.postMessage({cmd: 'build', data: data.entries},
-                                     window.location.origin);
-    }
-    if (data.msg) {
-      output('<div>' + data.msg + '</div>');
-    }
-  };
-  worker_.onerror = function(e) { console.log(e) };
+  var quitting_ = false;
 
   // Create terminal and cache DOM nodes;
   var container_ = document.getElementById(containerId);
   container_.insertAdjacentHTML('beforeEnd',
       ['<output></output>',
-       '<div id="input-line" class="input-line">',
-       '<div class="prompt">$&gt;</div><div><input class="cmdline" autofocus /></div>',
-       '</div>'].join(''));
+      '<div id="input-line" class="input-line">',
+      '<div class="prompt">$&gt;</div><div><input class="cmdline" autofocus /></div>',
+      '</div>'].join(''));
   var cmdLine_ = container_.querySelector('#input-line .cmdline');
   var output_ = container_.querySelector('output');
   var interlace_ = document.querySelector('.interlace');
-
-  // Hackery to resize the interlace background image as the container grows.
-  output_.addEventListener('DOMSubtreeModified', function(e) {
-    var docHeight = util.getDocHeight();
-    document.documentElement.style.height = docHeight + 'px';
-    //document.body.style.background = '-webkit-radial-gradient(center ' + (Math.round(docHeight / 2)) + 'px, contain, rgba(0,75,0,0.8), black) center center no-repeat, black';
-    interlace_.style.height = docHeight + 'px';
-    setTimeout(function() { // Need this wrapped in a setTimeout. Chrome is jupming to top :(
-      //window.scrollTo(0, docHeight);
-      cmdLine_.scrollIntoView();
-    }, 0);
-    //window.scrollTo(0, docHeight);
-  }, false);
 
   output_.addEventListener('click', function(e) {
     var el = e.target;
@@ -83,9 +53,7 @@ var Terminal = Terminal || function(containerId) {
   }, false);
 
   window.addEventListener('click', function(e) {
-    //if (!document.body.classList.contains('offscreen')) {
-      cmdLine_.focus();
-    //}
+    cmdLine_.focus();
   }, false);
 
   // Always force text cursor to end of input line.
@@ -95,9 +63,9 @@ var Terminal = Terminal || function(containerId) {
   cmdLine_.addEventListener('keyup', historyHandler_, false); // keyup needed for input blinker to appear at end of input.
   cmdLine_.addEventListener('keydown', processNewCommand_, false);
 
-  /*window.addEventListener('beforeunload', function(e) {
-    return "Don't leave me!";
-  }, false);*/
+  window.addEventListener('beforeunload', function(e) {
+    return "Don't leave me baby... I'll change!";
+  }, false);
 
   function inputTextClick_(e) {
     this.value = this.value;
@@ -108,7 +76,6 @@ var Terminal = Terminal || function(containerId) {
   }
 
   function historyHandler_(e) { // Tab needs to be keydown.
-
     if (history_.length) {
       if (e.keyCode == 38 || e.keyCode == 40) {
         if (history_[histpos_]) {
@@ -150,7 +117,7 @@ var Terminal = Terminal || function(containerId) {
       // Duplicate current input and append to output section.
       var line = this.parentNode.parentNode.cloneNode(true);
       line.removeAttribute('id')
-      line.classList.add('line');
+        line.classList.add('line');
       var input = line.querySelector('input.cmdline');
       input.autofocus = false;
       input.readOnly = true;
@@ -162,64 +129,40 @@ var Terminal = Terminal || function(containerId) {
           return val;
         });
         var cmd = args[0].toLowerCase();
-        args = args.splice(1); // Remove cmd from arg list.
+        args = args.splice(1);
       }
 
-      switch (mode_) {
-        case 'learn-git':
-          output("<p>OK</p>");
+      if (quitting_ == true) {
+        if (cmd[0] == "y") {
+          output('<p>Restarting..</p>');
+          setTimeout(function() {
+            location.reload();
+          }, 3000);
+        } else {
+          output("<p>Cancelling restart..</p>");
+        }
+        this.value = '';
+        return;
+      }
+
+      switch (cmd) {
+        case 'restart':
+          output('<p>Are you sure you want to start the tutorial over?</p>' +
+                 '<p>You will lose all history: (y/n)</p>');
+          quitting_ = true
+          break;
+        case 'clear':
+          clear_(this);
+          return;
+        case 'help':
+          output('<div class="ls-files">' + CMDS_.join('<br>') + '</div>');
           break;
         default:
-          switch (cmd) {
-            case 'learn':
-              if (args.length < 1) {
-                output('<p>learn WHAT? See `learn help`.</p>');
-                output('<p>eg. `learn git`</p>');
-              } else {
-                mode_ = 'learn-'+args[0];
-                clear_(this);
-                output('<p>Ok, learning GIT!</p>');
-              }
-              break;
-            case 'clear':
-              clear_(this);
-              return;
-            case 'help':
-              if (args.length > 0) {
-                if (args[0] == 'learn') {
-                  output('<div class="ls-files">' + LEARN_.join('<br>') + '</div>');
-                }
-              } else {
-                output('<div class="ls-files">' + CMDS_.join('<br>') + '</div>');
-              }
-              break;
-            case 'install':
-              // Check is installed.
-              if (window.chrome && window.chrome.app) {
-                if (!window.chrome.app.isInstalled) {
-                  try {
-                    chrome.app.install();
-                  } catch(e) {
-                    alert(e + '\nEnable is about:flags');
-                  }
-                } else {
-                  output('This app is already installed.');
-                }
-              }
-              break;
-            case 'init':
-              if (worker_) {
-                worker_.postMessage({cmd: 'init', type: type_, size: size_});
-              }
-              break;
-            default:
-              if (cmd) {
-                output(cmd + ': command not found');
-              }
-          };
+          if (cmd) {
+            output(cmd + ': command not found');
+          }
       };
-
-      this.value = ''; // Clear/setup line for next input.
+      this.value = '';
     }
   }
 
@@ -234,7 +177,7 @@ var Terminal = Terminal || function(containerId) {
     // If we have 3 or less entries, shorten the output container's height.
     // 15px height with a monospace font-size of ~12px;
     var height = entries.length == 1 ? 'height: ' + (entries.length * 30) + 'px;' :
-                 entries.length <= 3 ? 'height: ' + (entries.length * 18) + 'px;' : '';
+      entries.length <= 3 ? 'height: ' + (entries.length * 18) + 'px;' : '';
 
     // ~12px monospace font yields ~8px screen width.
     var colWidth = maxName.length * 16;//;8;
@@ -361,23 +304,6 @@ var Terminal = Terminal || function(containerId) {
     interlace_.style.height = '100%';
   }
 
-  function setTheme_(theme) {
-    var currentUrl = document.location.pathname;
-
-    if (!theme || theme == 'default') {
-      //history.replaceState({}, '', currentUrl);
-      localStorage.removeItem('theme');
-      document.body.className = '';
-      return;
-    }
-
-    if (theme) {
-      document.body.classList.add(theme);
-      localStorage.theme = theme;
-      //history.replaceState({}, '', currentUrl + '#theme=' + theme);
-    }
-  }
-
   function output(html) {
     output_.insertAdjacentHTML('beforeEnd', html);
     //output_.scrollIntoView();
@@ -386,13 +312,11 @@ var Terminal = Terminal || function(containerId) {
 
   return {
     initFS: function(persistent, size) {
-      output('<div>Welcome to ' + document.title +
-             '! (v' + VERSION_ + ')</div>');
-      output((new Date()).toLocaleString());
-      output('<p>Documentation: type "help"</p>');
+      output('<div>Welcome to the ' + document.title + '</div>');
+      output('<p>Type "help" if you get lost.</p>');
 
       if (!!!window.requestFileSystem) {
-        output('<div>Sorry! The FileSystem APIs are not available in your browser.</div>');
+        output('<div>Sorry! The FileSystem APIs are not available in your browser. Switch to Chrome or Firefox!</div>');
         return;
       }
 
@@ -402,24 +326,9 @@ var Terminal = Terminal || function(containerId) {
         cwd_ = fs_.root;
         type_ = type;
         size_ = size;
-
-        // If we get this far, attempt to create a folder to test if the
-        // --unlimited-quota-for-files fag is set.
-        cwd_.getDirectory('testquotaforfsfolder', {create: true}, function(dirEntry) {
-          dirEntry.remove(); // If successfully created, just delete it.
-        }, function(e) {
-          if (e.code == FileError.QUOTA_EXCEEDED_ERR) {
-            output('ERROR: Write access to the FileSystem is unavailable.<br>');
-            output('Type "install" or run Chrome with the --unlimited-quota-for-files flag.');
-          } else {
-            errorHandler_(e);
-          }
-        });
-
       }, errorHandler_);
     },
     output: output,
-    setTheme: setTheme_,
     getCmdLine: function() { return cmdLine_; },
     addDroppedFiles: function(files) {
       util.toArray(files).forEach(function(file, i) {
@@ -429,7 +338,7 @@ var Terminal = Terminal || function(containerId) {
           if (fsn_) {
             fsn_.contentWindow.postMessage({cmd: 'touch', data: file.name}, location.origin);
           }
-          
+
           fileEntry.createWriter(function(fileWriter) {
             fileWriter.write(file);
           }, errorHandler_);
