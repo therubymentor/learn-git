@@ -177,14 +177,7 @@ iframe#fsn {
 }
 #container {
   padding: 1em 1.5em 1em 1em;
-  text-shadow: 0 0 5px #C8C8C8;
-  /*overflow: hidden;
-  white-space: nowrap;*/
-
-  /*box-shadow: 10px 5px 20px rgba(255,255,255,0.2) inset,
-              -10px -5px 20px rgba(255,255,255,0.2) inset;
   border-radius: 50px;
-  background: rgba(255, 255, 255, 0.1);*/
 }
 #container output {
   clear: both;

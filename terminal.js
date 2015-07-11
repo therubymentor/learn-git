@@ -18,40 +18,29 @@ const WINDOW_URL  = window.URL || window.webkitURL;
 var Terminal = Terminal || function(containerId) {
   window.URL = WINDOW_URL;
 
-  const CMDS_ = [
-    'clear', 'help', 'restart'
-  ];
-
   const ENTER_KEY = 13;
   const TAB_KEY    = 9;
 
-  var timer_ = null;
-  var quitting_ = false;
+  var lastStep     = 1;
+  var lastURI      = "";
+  var stepJSON     = {};
+  var quitting     = null;
 
   // Create terminal and cache DOM nodes;
   var container_ = document.getElementById(containerId);
   container_.insertAdjacentHTML('beforeEnd',
       ['<output></output>',
       '<div id="input-line" class="input-line">',
-      '<div class="prompt">$&gt;</div><div><input class="cmdline" autofocus /></div>',
+      '<div class="prompt">$ </div><div><input class="cmdline" autofocus /></div>',
       '</div>'].join(''));
 
   var cmdLine_ = container_.querySelector('#input-line .cmdline');
   var output_ = container_.querySelector('output');
   var interlace_ = document.querySelector('.interlace');
 
-  // MOTD
-  output('<p>Welcome to the '+ document.title + '!</p>');
-  output('<p>Git is a version control system that is great for saving your ass '+
-      'when you screw up. And you will screw up! I honestly don\'t know how '+
-      'I managed without it. And today you get to start learning everything '+
-      'you will ever need to know about Git. It is actually pretty easy, so '+
-      'let\'s dig in!</p>');
-  output('<p>You won\'t need to install anything special to do this tutorial as '+
-      'it is more or less a perfect simulation of Git and a specific Git '+
-      'workflow, designed to make your life while working with a team easy!</p>');
-  output('But enough bullshit! Type `cd ~/dev/proj_1` to change into the directory '+
-      'you will be working in:</p>');
+  window.addEventListener('load', function(e) {
+    getData(1);
+  }, false);
 
   window.addEventListener('click', function(e) {
     cmdLine_.focus();
@@ -60,12 +49,28 @@ var Terminal = Terminal || function(containerId) {
   cmdLine_.addEventListener('click', inputTextClick_, false);
   cmdLine_.addEventListener('keydown', handleInput, false);
 
-  window.addEventListener('beforeunload', function(e) {
-    return "Don't leave me baby... I'll change!";
-  }, false);
-
   function inputTextClick_(e) {
     this.value = this.value;
+  }
+
+  function getData(step) {
+    var dataURI = ['data/steps/', step, '.json'].join('');
+    if (dataURI == lastURI) {
+      quitting = true;
+      return;
+    }
+    $.getJSON(dataURI, function(json){
+      console.debug(dataURI);
+      stepJSON = json['step'];
+      printInstructions();
+      lastURI = dataURI;
+    });
+  }
+
+  function printInstructions() {
+    $.each(stepJSON['instructions'], function(i, v) {
+      print(v);
+    });
   }
 
   function handleInput(e) {
@@ -74,6 +79,13 @@ var Terminal = Terminal || function(containerId) {
         e.preventDefault();
         break;
       case ENTER_KEY:
+        if (quitting) {
+          clear(this);
+          print("You have fallen into a dark hole. Feeling around you for a source of light your fingers fall upon a cold, scaly.....");
+          print("YOU HAVE BEEN SLAIN BY A GRUE! Refresh to start over.");
+          break;
+        }
+
         var line = this.parentNode.parentNode.cloneNode(true);
         line.removeAttribute('id');
         line.classList.add('line');
@@ -82,36 +94,27 @@ var Terminal = Terminal || function(containerId) {
         input.readOnly = true;
         output_.appendChild(line);
 
-        if (this.value && this.value.trim()) {
-          var args = this.value.split(' ').filter(function(val, i) {
-            return val;
-          });
-          var cmd = args[0].toLowerCase();
-          args = args.splice(1);
+        if (stepJSON['expected'] === this.value) {
+          clear(this);
+          print(stepJSON['congrats']);
+          getData(lastStep+1);
+        } else {
+          print("nope");
         }
         this.value = '';
-
-        // DO SOME SHIT
-        // $.getJSON("data/steps/1.json", function( data ) {});
         break;
     };
   }
 
-  function clear_(input) {
+  function clear(input) {
     output_.innerHTML = '';
     input.value = '';
     document.documentElement.style.height = '100%';
     interlace_.style.height = '100%';
   }
 
-  function output(html) {
-    output_.insertAdjacentHTML('beforeEnd', html);
-    //output_.scrollIntoView();
+  function print(html) {
+    output_.insertAdjacentHTML('beforeEnd', ["<p>", html, "</p>"].join(''));
     cmdLine_.scrollIntoView();
-  }
-
-  return {
-    output: output,
-    getCmdLine: function() { return cmdLine_; }
   }
 };

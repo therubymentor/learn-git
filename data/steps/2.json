@@ -1,0 +1,9 @@
+{
+  "step": {
+    "instructions": [
+      "What is the magic word?"
+    ],
+    "expected": "please",
+    "congrats": "You have completed the course!"
+  }
+}
