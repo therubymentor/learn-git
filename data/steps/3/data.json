@@ -4,6 +4,7 @@
       "Now that the directory is `in git` you can look at the status of the files inside.",
       "git status"
     ],
-    "expected": "git status"
+    "expected": "git status",
+    "hint": "Do you see how all the files were listed as 'untracked'? This is because these files are not `in` Git. Let's add them now."
   }
 }

@@ -5,6 +5,7 @@
       "Do so now in the proj_1 directory by typing the following command:",
       "git init"
     ],
-    "expected": "git init"
+    "expected": "git init",
+    "hint": "The folder is not initialized as a Git repo, but no files were added yet."
   }
 }

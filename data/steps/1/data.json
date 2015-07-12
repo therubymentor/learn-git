@@ -6,6 +6,7 @@
       "From here forward you will never have to worry about catastrophic fuck-ups again! To start, change directory to the working folder like so:",
       "cd ~/dev/proj_1"
     ],
-    "expected": "cd ~/dev/proj_1"
+    "expected": "cd ~/dev/proj_1",
+    "hint": "These are the files we will be putting into Git."
   }
 }

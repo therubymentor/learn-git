@@ -1,0 +1,10 @@
+{
+  "step": {
+    "instructions": [
+      "There was no output when we typed the command `git add .` but that is totally normal and shit.",
+      "To see how our command affected the git repository, lets do the `git status` command again:"
+    ],
+    "expected": "git status",
+    "hint": "See how the files are now in the Changes to be committed section?"
+  }
+}

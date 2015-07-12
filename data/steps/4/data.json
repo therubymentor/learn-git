@@ -1,8 +1,10 @@
 {
   "step": {
     "instructions": [
-      "You are on fire!"
+      "To add _all_ the files and folders in the current directory, we use `git add .`.",
+      "In Unix/Linux/OSX the dot character means the current working directory. Type:",
+      "git add ."
     ],
-    "expected": ""
+    "expected": "git add ."
   }
 }

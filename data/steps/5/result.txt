@@ -1,0 +1,12 @@
+On branch master
+
+Initial commit
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+
+  new file:   1.txt
+  new file:   2.txt
+  new file:   3.txt
+  new file:   data/1.json
+  new file:   data/2.json

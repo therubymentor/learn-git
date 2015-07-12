@@ -105,6 +105,7 @@ var Terminal = Terminal || function(containerId) {
 
         if (stepJSON['expected'] === this.value) {
           pre(resultText);
+          print(stepJSON['hint']);
           print("Press <enter> to continue.");
           doNext(function() {
             clear(this);
