@@ -187,7 +187,8 @@ iframe#fsn {
   margin: 0;
 }
 #container output pre {
-  margin: 0;
+  margin: 1em;
+  color: #2FE21A;
 }
 #container output textarea {
   width: 100%;

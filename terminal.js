@@ -57,17 +57,16 @@ var Terminal = Terminal || function(containerId) {
 
   function getData(step) {
     var dataURI = 'data/steps/'+step;
-    if (dataURI == lastURI) {
-      quitting = true;
-      return;
-    }
-    $.getJSON(dataURI+'/data.json', function(json){
+    console.debug(dataURI);
+    $.getJSON(dataURI+'/data.json', {}).done(function(json){
       stepJSON = json['step'];
-      $.get(dataURI+'/result.txt', function(text){
+      $.get(dataURI+'/result.txt', {}).done(function(text){
         resultText = text;
         printInstructions();
         lastURI = dataURI;
       });
+    }).fail(function() {
+      quitting = true;
     });
   }
 
@@ -105,10 +104,7 @@ var Terminal = Terminal || function(containerId) {
         output_.appendChild(line);
 
         if (stepJSON['expected'] === this.value) {
-          lines = resultText.split("\n");
-          $.each(lines, function(i, v) {
-            print(v);
-          });
+          pre(resultText);
           print("Press <enter> to continue.");
           doNext(function() {
             clear(this);
@@ -131,6 +127,11 @@ var Terminal = Terminal || function(containerId) {
 
   function print(html) {
     output_.insertAdjacentHTML('beforeEnd', ["<p>", html, "</p>"].join(''));
+    cmdLine_.scrollIntoView();
+  }
+
+  function pre(html) {
+    output_.insertAdjacentHTML('beforeEnd', ["<pre>", html, "</pre>"].join(''));
     cmdLine_.scrollIntoView();
   }
 
