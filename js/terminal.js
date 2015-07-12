@@ -29,7 +29,7 @@ var Terminal = Terminal || function(containerId) {
   var quitting     = null;
   var waitingFunc  = null;
   var histPos      = 0;
-  var cmdHistory   = [];
+  var cmdHistory   = [''];
   var stepJSON     = {};
 
   // Create terminal and cache DOM nodes;
