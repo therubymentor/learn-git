@@ -2,7 +2,7 @@
   font-family: 'Inconsolata';
   font-style: normal;
   font-weight: normal;
-  src: local('Inconsolata'), url('fonts/Inconsolata.woff') format('woff');
+  src: local('Inconsolata'), url('/fonts/Inconsolata.woff') format('woff');
 }
 
 /*@-webkit-keyframes pulse {
@@ -149,7 +149,7 @@ body {
   position: absolute;
   left: 0;
   top: 0;
-  background: url(img/interlace.png) top left repeat, rgba(255,255,255,0.5);
+  background: url(/img/interlace.png) top left repeat, rgba(255,255,255,0.5);
   width: 100%;
   height: 100%;
   opacity: 0.2;
