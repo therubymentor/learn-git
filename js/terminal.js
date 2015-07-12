@@ -18,15 +18,19 @@ const WINDOW_URL  = window.URL || window.webkitURL;
 var Terminal = Terminal || function(containerId) {
   window.URL = WINDOW_URL;
 
-  const ENTER_KEY  = 13;
-  const TAB_KEY    = 9;
+  const ENTER_KEY     = 13;
+  const TAB_KEY       = 9;
+  const UP_ARROW_KEY  = 38;
+  const DOWN_ARROW_KEY = 40;
 
   var lastStep     = 1;
   var lastURI      = "";
-  var stepJSON     = {};
   var resultText   = "";
   var quitting     = null;
   var waitingFunc  = null;
+  var histPos      = 0;
+  var cmdHistory   = [];
+  var stepJSON     = {};
 
   // Create terminal and cache DOM nodes;
   var container = document.getElementById(containerId);
@@ -48,10 +52,11 @@ var Terminal = Terminal || function(containerId) {
     cmdLine.focus();
   }, false);
 
-  cmdLine.addEventListener('click', inputTextClick_, false);
+  cmdLine.addEventListener('click', inputTextClick, false);
   cmdLine.addEventListener('keydown', handleInput, false);
+  cmdLine.addEventListener('keydown', scanHistory, false);
 
-  function inputTextClick_(e) {
+  function inputTextClick(e) {
     this.value = this.value;
   }
 
@@ -78,6 +83,7 @@ var Terminal = Terminal || function(containerId) {
 
   function handleInput(e) {
     switch(e.keyCode||e.which) {
+      case UP_ARROW_KEY:
       case TAB_KEY:
         e.preventDefault();
         break;
@@ -105,6 +111,9 @@ var Terminal = Terminal || function(containerId) {
         output.appendChild(line);
 
         if (stepJSON['expected'] === this.value) {
+          cmdHistory.push(stepJSON['expected']);
+          console.debug(cmdHistory);
+
           pre(resultText);
           print(stepJSON['hint']);
           print("Press <enter> to continue.");
@@ -118,6 +127,26 @@ var Terminal = Terminal || function(containerId) {
         this.value = '';
         break;
     };
+  }
+
+  function scanHistory(e) {
+    if (cmdHistory.length) {
+      if (e.keyCode == DOWN_ARROW_KEY) {
+        histPos--;
+        if (histPos < 0) {
+          histPos = cmdHistory.length-1;
+        }
+      } else if (e.keyCode == UP_ARROW_KEY) {
+        histPos++;
+        if (histPos > cmdHistory.length-1) {
+          histPos = 0;
+        }
+      }
+
+      if (e.keyCode == UP_ARROW_KEY || e.keyCode == DOWN_ARROW_KEY) {
+        this.value = cmdHistory[histPos];
+      }
+    }
   }
 
   function clear(input) {
