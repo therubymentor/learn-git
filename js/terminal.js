@@ -7,10 +7,10 @@ util.toArray = function(list) {
 util.getDocHeight = function() {
   var d = document;
   return Math.max(
-      Math.max(d.body.scrollHeight, d.documentElement.scrollHeight),
-      Math.max(d.body.offsetHeight, d.documentElement.offsetHeight),
-      Math.max(d.body.clientHeight, d.documentElement.clientHeight)
-      );
+    Math.max(d.body.scrollHeight, d.documentElement.scrollHeight),
+    Math.max(d.body.offsetHeight, d.documentElement.offsetHeight),
+    Math.max(d.body.clientHeight, d.documentElement.clientHeight)
+  );
 };
 
 const WINDOW_URL  = window.URL || window.webkitURL;
@@ -18,7 +18,7 @@ const WINDOW_URL  = window.URL || window.webkitURL;
 var Terminal = Terminal || function(containerId) {
   window.URL = WINDOW_URL;
 
-  const ENTER_KEY = 13;
+  const ENTER_KEY  = 13;
   const TAB_KEY    = 9;
 
   var lastStep     = 1;
@@ -29,27 +29,27 @@ var Terminal = Terminal || function(containerId) {
   var waitingFunc  = null;
 
   // Create terminal and cache DOM nodes;
-  var container_ = document.getElementById(containerId);
-  container_.insertAdjacentHTML('beforeEnd',
+  var container = document.getElementById(containerId);
+  container.insertAdjacentHTML('beforeEnd',
       ['<output></output>',
       '<div id="input-line" class="input-line">',
       '<div class="prompt">$ </div><div><input class="cmdline" autofocus /></div>',
       '</div>'].join(''));
 
-  var cmdLine_ = container_.querySelector('#input-line .cmdline');
-  var output_ = container_.querySelector('output');
-  var interlace_ = document.querySelector('.interlace');
+  var cmdLine   = container.querySelector('#input-line .cmdline');
+  var output    = container.querySelector('output');
+  var interlace = document.querySelector('.interlace');
 
   window.addEventListener('load', function(e) {
     getData(1);
   }, false);
 
   window.addEventListener('click', function(e) {
-    cmdLine_.focus();
+    cmdLine.focus();
   }, false);
 
-  cmdLine_.addEventListener('click', inputTextClick_, false);
-  cmdLine_.addEventListener('keydown', handleInput, false);
+  cmdLine.addEventListener('click', inputTextClick_, false);
+  cmdLine.addEventListener('keydown', handleInput, false);
 
   function inputTextClick_(e) {
     this.value = this.value;
@@ -81,6 +81,7 @@ var Terminal = Terminal || function(containerId) {
       case TAB_KEY:
         e.preventDefault();
         break;
+
       case ENTER_KEY:
         if (waitingFunc != null) {
           waitingFunc();
@@ -101,7 +102,7 @@ var Terminal = Terminal || function(containerId) {
         var input = line.querySelector('input.cmdline');
         input.autofocus = false;
         input.readOnly = true;
-        output_.appendChild(line);
+        output.appendChild(line);
 
         if (stepJSON['expected'] === this.value) {
           pre(resultText);
@@ -112,7 +113,7 @@ var Terminal = Terminal || function(containerId) {
             getData(lastStep = lastStep + 1);
           });
         } else {
-          print("nope");
+          print("Wat?");
         }
         this.value = '';
         break;
@@ -120,20 +121,20 @@ var Terminal = Terminal || function(containerId) {
   }
 
   function clear(input) {
-    output_.innerHTML = '';
+    output.innerHTML = '';
     input.value = '';
     document.documentElement.style.height = '100%';
-    interlace_.style.height = '100%';
+    interlace.style.height = '100%';
   }
 
   function print(html) {
-    output_.insertAdjacentHTML('beforeEnd', ["<p>", html, "</p>"].join(''));
-    cmdLine_.scrollIntoView();
+    output.insertAdjacentHTML('beforeEnd', ["<p>", html, "</p>"].join(''));
+    cmdLine.scrollIntoView();
   }
 
   function pre(html) {
-    output_.insertAdjacentHTML('beforeEnd', ["<pre>", html, "</pre>"].join(''));
-    cmdLine_.scrollIntoView();
+    output.insertAdjacentHTML('beforeEnd', ["<pre>", html, "</pre>"].join(''));
+    cmdLine.scrollIntoView();
   }
 
   function doNext(func) {
