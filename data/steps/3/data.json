@@ -1,0 +1,9 @@
+{
+  "step": {
+    "instructions": [
+      "Now that the directory is `in git` you can look at the status of the files inside.",
+      "git status"
+    ],
+    "expected": "git status"
+  }
+}

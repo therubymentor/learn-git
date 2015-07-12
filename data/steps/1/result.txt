@@ -1,0 +1,5 @@
+total 0
+drwx------  4 rubylove  staff   136B Jul 11 19:00 data
+-rw-------  1 rubylove  staff     0B Jul 11 19:00 3.txt
+-rw-------  1 rubylove  staff     0B Jul 11 19:00 2.txt
+-rw-------  1 rubylove  staff     0B Jul 11 19:00 1.txt

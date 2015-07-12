@@ -1,0 +1,10 @@
+{
+  "step": {
+    "instructions": [
+      "To protect a directory with Git you first must initialize that direcory.",
+      "Do so now in the proj_1 directory by typing the following command:",
+      "git init"
+    ],
+    "expected": "git init"
+  }
+}

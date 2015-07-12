@@ -6,7 +6,6 @@
       "From here forward you will never have to worry about catastrophic fuck-ups again! To start, change directory to the working folder like so:",
       "cd ~/dev/proj_1"
     ],
-    "expected": "cd ~/dev/proj_1",
-    "congrats": "Awesome! You are doing great."
+    "expected": "cd ~/dev/proj_1"
   }
 }

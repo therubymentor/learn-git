@@ -24,7 +24,9 @@ var Terminal = Terminal || function(containerId) {
   var lastStep     = 1;
   var lastURI      = "";
   var stepJSON     = {};
+  var resultText   = "";
   var quitting     = null;
+  var waitingFunc  = null;
 
   // Create terminal and cache DOM nodes;
   var container_ = document.getElementById(containerId);
@@ -54,16 +56,18 @@ var Terminal = Terminal || function(containerId) {
   }
 
   function getData(step) {
-    var dataURI = ['data/steps/', step, '.json'].join('');
+    var dataURI = 'data/steps/'+step;
     if (dataURI == lastURI) {
       quitting = true;
       return;
     }
-    $.getJSON(dataURI, function(json){
-      console.debug(dataURI);
+    $.getJSON(dataURI+'/data.json', function(json){
       stepJSON = json['step'];
-      printInstructions();
-      lastURI = dataURI;
+      $.get(dataURI+'/result.txt', function(text){
+        resultText = text;
+        printInstructions();
+        lastURI = dataURI;
+      });
     });
   }
 
@@ -79,6 +83,12 @@ var Terminal = Terminal || function(containerId) {
         e.preventDefault();
         break;
       case ENTER_KEY:
+        if (waitingFunc != null) {
+          waitingFunc();
+          waitingFunc = null;
+          break;
+        }
+
         if (quitting) {
           clear(this);
           print("You have fallen into a dark hole. Feeling around you for a source of light your fingers fall upon a cold, scaly.....");
@@ -95,9 +105,15 @@ var Terminal = Terminal || function(containerId) {
         output_.appendChild(line);
 
         if (stepJSON['expected'] === this.value) {
-          clear(this);
-          print(stepJSON['congrats']);
-          getData(lastStep+1);
+          lines = resultText.split("\n");
+          $.each(lines, function(i, v) {
+            print(v);
+          });
+          print("Press <enter> to continue.");
+          doNext(function() {
+            clear(this);
+            getData(lastStep = lastStep + 1);
+          });
         } else {
           print("nope");
         }
@@ -116,5 +132,9 @@ var Terminal = Terminal || function(containerId) {
   function print(html) {
     output_.insertAdjacentHTML('beforeEnd', ["<p>", html, "</p>"].join(''));
     cmdLine_.scrollIntoView();
+  }
+
+  function doNext(func) {
+    waitingFunc = func;
   }
 };
